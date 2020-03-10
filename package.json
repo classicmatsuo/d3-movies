@@ -1,0 +1,21 @@
+{
+  "name": "parcel-sandbox",
+  "version": "1.0.0",
+  "description": "Simple Parcel Sandbox",
+  "main": "index.html",
+  "scripts": {
+    "start": "parcel index.html --open",
+    "build": "parcel build index.html"
+  },
+  "dependencies": {
+    "d3": "5.5.0",
+    "d3-svg-annotation": "2.3.0",
+    "d3-svg-legend": "2.25.6",
+    "lodash": "^4.17.15",
+    "textures": "1.2.0",
+    "us-inflation": "1.1.0"
+  },
+  "devDependencies": {
+    "parcel-bundler": "^1.6.1"
+  }
+}
