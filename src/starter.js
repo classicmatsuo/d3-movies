@@ -48,3 +48,52 @@ movies = _
   })
   .filter(d => d.boxOffice && d.year >= startYear)
   .value();
+
+// mean box office figure, top 3 genres
+const meanBox = d3.mean(movies, d => d.boxOffice);
+const genres = _.chain(movies)
+  .countBy('genre')
+  .toPairs()
+  .sortBy(d => -d[1])
+  .take(3)
+  .map(0)
+  .value()
+console.log(genres)
+
+// scale: x, y, colors
+// x-scale, time scale
+const [minDate, maxDate] = d3.extent(movies, d => d.date)
+const xScale = d3.scaleTime()
+  .domain([
+    d3.timeYear.floor(minDate),
+    d3.timeYear.ceil(maxDate),
+  ]).range([margin.left, width - margin.right])
+  console.log(xScale.domain(), xScale.range());
+
+const boxExtent = d3.extent(movies, d => d.boxOffice - meanBox)
+const yScale = d3.scaleLinear()
+  .domain(boxExtent).range([height - margin.bottom, margin.top])
+  console.log(yScale.domain(), yScale.range())
+
+const colorScale = d3.scaleOrdinal()
+  .domain(genres)
+  .range(genreColors)
+
+const areaGen = d3.area()
+  .x(d => xScale(d.date))
+  .y1(d => yScale(d.val))
+  .y0(d => yScale(0))
+
+// draw curves
+const curves = svg.selectAll('path.curve')
+  .data(movies)
+  .enter()
+  .append('path')
+  .classed('curve', true)
+  .attr('d', d => areaGen([
+    {date: d3.timeMonth.offset(d.date, -2), val: 0},
+    {date: d.date, val: d.boxOffice - meanBox},
+    {date: d3.timeMonth.offset(d.date, 2), val: 0}
+  ]))
+
+
