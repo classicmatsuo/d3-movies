@@ -83,6 +83,7 @@ const areaGen = d3.area()
   .x(d => xScale(d.date))
   .y1(d => yScale(d.val))
   .y0(d => yScale(0))
+  .curve(d3.curveCatmullRom)
 
 // draw curves
 const curves = svg.selectAll('path.curve')
@@ -94,6 +95,7 @@ const curves = svg.selectAll('path.curve')
     {date: d3.timeMonth.offset(d.date, -2), val: 0},
     {date: d.date, val: d.boxOffice - meanBox},
     {date: d3.timeMonth.offset(d.date, 2), val: 0}
-  ]))
+  ])).attr('fill', d => colorScale(d.genre))
+  .attr('stroke', '#fff')
 
 
