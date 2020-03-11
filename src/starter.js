@@ -98,4 +98,45 @@ const curves = svg.selectAll('path.curve')
   ])).attr('fill', d => colorScale(d.genre))
   .attr('stroke', '#fff')
 
+// add axes
+const xAxis = d3.axisBottom()
+  .scale(xScale)
+const yAxis = d3.axisLeft()
+  .scale(yScale)
+  .tickFormat(d => '$' + parseInt((d + meanBox) / 1000000) + 'M')
+
+svg.append('g')
+  .classed('x-axis', true)
+  .attr('transform', `translate(0, ${yScale(0)})`)
+  .call(xAxis)
+svg.append('g')
+  .classed('y-axis', true)
+  .attr('transform', `translate(${margin.left}, 0)`)
+  .call(yAxis)
+  .select('.domain')
+  .remove()
+
+const annotationData = _.chain(movies)
+  .filter(d => (d.boxOffice - meanBox) > 200000000)
+  // note (title), x/y, dx/dy
+  .map(d => {
+    return {
+      note: {title: d.title, align:"middle",
+      lineType:"vertical"},
+      x: xScale(d.date),
+      y: yScale(d.boxOffice - meanBox),
+      dx: 20,
+      dy: 0
+    }
+  })
+  .value()
+
+const makeAnnotations = annotation()
+  .type(annotationLabel)
+  .annotations(annotationData)
+
+svg.append('g')
+  .call(makeAnnotations)
+
+console.log(annotationData)
 
