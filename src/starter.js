@@ -85,6 +85,36 @@ const areaGen = d3.area()
   .y0(d => yScale(0))
   .curve(d3.curveCatmullRom)
 
+/*******************************************
+ * Set up defs for drop-shadow and mask
+ *******************************************/
+const defs = svg.append("defs");
+// dropshadow, got quite a bit of help from:
+// https://github.com/nbremer/babyspikelivecoding/blob/master/js/filter.js
+const drop = defs.append("filter").attr("id", "shadow");
+// add color matrix to soften the opacity
+drop
+  .append("feColorMatrix")
+  .attr("type", "matrix")
+  .attr(
+    "values",
+    `
+    0 0 0 0 0
+    0 0 0 0 0
+    0 0 0 0 0
+    0 0 0 0.3 0
+    `
+  );
+// add a blur to the color matrix
+drop
+  .append("feGaussianBlur")
+  .attr("stdDeviation", 3)
+  .attr("result", "coloredBlur");
+// now merge the colored blur with the source graphic
+const feMerge = drop.append("feMerge");
+feMerge.append("feMergeNode").attr("in", "coloredBlur");
+feMerge.append("feMergeNode").attr("in", "SourceGraphic");
+
 // draw curves
 const curves = svg.selectAll('path.curve')
   .data(movies)
@@ -96,8 +126,9 @@ const curves = svg.selectAll('path.curve')
     {date: d.date, val: d.boxOffice - meanBox},
     {date: d3.timeMonth.offset(d.date, 2), val: 0}
   ])).attr('fill', d => colorScale(d.genre))
-  .attr("fill-opacity","0.5")
-  .attr('stroke', '#fff')
+  .attr("fill-opacity","0.75")
+  // .attr('stroke', '#fff')
+  .style('filter', 'url(#shadow)')
 
 // add axes
 const xAxis = d3.axisBottom()
@@ -140,4 +171,71 @@ svg.append('g')
   .call(makeAnnotations)
 
 console.log(annotationData)
+
+
+/*******************************************
+ * Calculate holidays and draw textures
+ *******************************************/
+const holidayData = _
+  .chain(numYears)
+  .times(i => {
+    return [
+      {
+        type: "summer",
+        dates: [
+          new Date(`6/1/${startYear + i}`),
+          new Date(`8/30/${startYear + i}`)
+        ]
+      },
+      {
+        type: "winter",
+        dates: [
+          new Date(`11/1/${startYear + i}`),
+          new Date(`12/31/${startYear + i}`)
+        ]
+      }
+    ];
+  })
+  .flatten()
+  .value();
+// and draw them as textures
+const summer = textures
+  .lines()
+  .lighter()
+  .size(8)
+  .stroke("#eb6a5b");
+const winter = textures
+  .lines()
+  .lighter()
+  .size(8)
+  .stroke("#51aae8");
+svg.call(summer);
+svg.call(winter);
+const holidays = svg.insert("g", ".curves");
+holidays
+  .selectAll(".summer")
+  .data(holidayData)
+  .enter()
+  .append("rect")
+  .attr("x", d => xScale(d.dates[0]))
+  .attr("y", margin.top)
+  .attr("width", d => xScale(d.dates[1]) - xScale(d.dates[0]))
+  .attr("height", height - margin.top - margin.bottom)
+  .attr("fill", d => (d.type === "summer" ? summer.url() : winter.url()));
+
+/*******************************************
+ * Draw legends
+ *******************************************/
+const legend = legendColor().scale(colorScale);
+const legendG = svg
+  .append("g")
+  .classed("legend", true)
+  .attr("transform", `translate(${width - margin.right}, ${margin.top})`)
+  .call(legend);
+legendG
+  .selectAll("text")
+  .attr("font-size", 12)
+  .attr("font-family", "Helvetica")
+  .attr("fill", "#000");
+
 

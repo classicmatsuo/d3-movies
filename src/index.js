@@ -245,16 +245,16 @@ holidays
  * Draw legends
  *******************************************/
 const legend = legendColor().scale(colorScale);
-// const legendG = svg
-//   .append("g")
-//   .classed("legend", true)
-//   .attr("transform", `translate(${width - margin.right}, ${margin.top})`)
-//   .call(legend);
-// legendG
-//   .selectAll("text")
-//   .attr("font-size", 12)
-//   .attr("font-family", "Helvetica")
-//   .attr("fill", "#000");
+const legendG = svg
+  .append("g")
+  .classed("legend", true)
+  .attr("transform", `translate(${width - margin.right}, ${margin.top})`)
+  .call(legend);
+legendG
+  .selectAll("text")
+  .attr("font-size", 12)
+  .attr("font-family", "Helvetica")
+  .attr("fill", "#000");
 
 /*******************************************
  * Draw annotations
