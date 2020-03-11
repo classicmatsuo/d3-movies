@@ -96,6 +96,7 @@ const curves = svg.selectAll('path.curve')
     {date: d.date, val: d.boxOffice - meanBox},
     {date: d3.timeMonth.offset(d.date, 2), val: 0}
   ])).attr('fill', d => colorScale(d.genre))
+  .attr("fill-opacity","0.5")
   .attr('stroke', '#fff')
 
 // add axes
@@ -122,7 +123,7 @@ const annotationData = _.chain(movies)
   .map(d => {
     return {
       note: {title: d.title, align:"middle",
-      lineType:"vertical"},
+      orientation:"leftRight"},
       x: xScale(d.date),
       y: yScale(d.boxOffice - meanBox),
       dx: 20,
