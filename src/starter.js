@@ -8,7 +8,7 @@ import { annotation, annotationLabel } from "d3-svg-annotation";
 const startYear = 2008;
 const numYears = 10;
 // colors (purple, green, pink)
-const genreColors = ["#e683b4", "#53c3ac", "#8475e8"];
+const genreColors = ["#FFBD33", "#FF5733", "#33FFBD"];
 const holidayColors = {
   summer: "#eb6a5b",
   winter: "#51aae8"
@@ -52,14 +52,23 @@ movies = _
 // mean box office figure, top 3 genres
 const meanBox = d3.mean(movies, d => d.boxOffice);
 const genres = _.chain(movies)
-  .countBy('genre')
+  .countBy("genre")
   .toPairs()
   .sortBy(d => -d[1])
-  .take(3)
   .map(0)
-  .value()
+  .take(3)
+  .value();
 console.log(genres)
 
+// subtract median box from each movie
+// and also filter movies by top genres
+movies = _
+  .chain(movies)
+  .filter(d => _.includes(genres, d.genre))
+  .map(d => Object.assign(d, { boxDiff: d.boxOffice - meanBox }))
+  .sortBy(d => -Math.abs(d.boxDiff))
+  .value();
+  
 // scale: x, y, colors
 // x-scale, time scale
 const [minDate, maxDate] = d3.extent(movies, d => d.date)
@@ -115,6 +124,19 @@ const feMerge = drop.append("feMerge");
 feMerge.append("feMergeNode").attr("in", "coloredBlur");
 feMerge.append("feMergeNode").attr("in", "SourceGraphic");
 
+/*******************************************
+ * Draw hover boxes
+ *******************************************/
+const hover = d3
+  .select("#app")
+  .append("div")
+  .style("position", "absolute")
+  .style("background", "#fff")
+  .style("padding", 5)
+  .style("max-width", "200px")
+  .style("border", "1px solid #000");
+
+
 // draw curves
 const curves = svg.selectAll('path.curve')
   .data(movies)
@@ -129,6 +151,14 @@ const curves = svg.selectAll('path.curve')
   .attr("fill-opacity","0.75")
   // .attr('stroke', '#fff')
   .style('filter', 'url(#shadow)')
+// hover
+curves.on("mouseover", d => {
+  const [x, y] = d3.mouse(svg.node());
+  hover.style("top", `${y}px`).style("left", `${x}px`).html(`
+        <strong>${d.title}</strong><br />
+        Box office: ${d3.format("$,.0f")(d.boxOffice)}
+      `);
+});
 
 // add axes
 const xAxis = d3.axisBottom()
