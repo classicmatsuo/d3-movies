@@ -68,7 +68,7 @@ movies = _
   .map(d => Object.assign(d, { boxDiff: d.boxOffice - meanBox }))
   .sortBy(d => -Math.abs(d.boxDiff))
   .value();
-  
+
 // scale: x, y, colors
 // x-scale, time scale
 const [minDate, maxDate] = d3.extent(movies, d => d.date)
@@ -169,11 +169,11 @@ const yAxis = d3.axisLeft()
 
 svg.append('g')
   .classed('x-axis', true)
-  .attr('transform', `translate(0, ${yScale(0)})`)
+  .attr('transform', `translate(10, ${yScale(0)})`)
   .call(xAxis)
 svg.append('g')
   .classed('y-axis', true)
-  .attr('transform', `translate(${margin.left}, 0)`)
+  .attr('transform', `translate(${margin.left} , 0)`)
   .call(yAxis)
   .select('.domain')
   .remove()
