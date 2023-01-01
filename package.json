@@ -15,6 +15,6 @@
     "us-inflation": "1.1.0"
   },
   "devDependencies": {
-    "parcel": "^2.0.0-rc.0"
+    "parcel": "^2.8.2"
   }
 }
